@@ -1,2 +1,17 @@
 # sri_lanka_travel_app
-Flutter travel app featuring Sri Lanka's best places. Includes: scrollable place cards with images &amp; ratings, detailed destination view, user profile, bottom navigation bar. Tropical design using Ocean Blue (#0077B6), Sky Blue, Sunset Orange, and Soft Sand colors. 
+
+A new Flutter project.
+
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
+- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
