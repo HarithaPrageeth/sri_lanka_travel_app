@@ -339,14 +339,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Email: amara@serendipity.lk',
+                      'Email: prageethh182@gmail.com',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withOpacity(0.8),
                       ),
                     ),
                     Text(
-                      'Password: password123',
+                      'Password: AhpM1205',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withOpacity(0.8),
