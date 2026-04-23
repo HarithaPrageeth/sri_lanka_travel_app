@@ -4,10 +4,12 @@ import '../utils/constants.dart';
 
 class DetailsScreen extends StatelessWidget {
   final Place place;
+  final Function(Place) onFavoriteToggle;
 
   const DetailsScreen({
     Key? key,
     required this.place,
+    required this.onFavoriteToggle,
   }) : super(key: key);
 
   @override
@@ -24,6 +26,32 @@ class DetailsScreen extends StatelessWidget {
               icon: const Icon(Icons.arrow_back, color: AppColors.white),
               onPressed: () => Navigator.pop(context),
             ),
+            actions: [
+              // Favorite button in app bar
+              IconButton(
+                icon: Icon(
+                  place.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: place.isFavorite ? Colors.red : AppColors.white,
+                ),
+                onPressed: () {
+                  onFavoriteToggle(place);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        place.isFavorite
+                            ? 'Added to favorites!'
+                            : 'Removed from favorites',
+                        style: const TextStyle(color: AppColors.white),
+                      ),
+                      backgroundColor: place.isFavorite
+                          ? AppColors.accent
+                          : Colors.grey,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 place.name,
@@ -198,29 +226,41 @@ class DetailsScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       onPressed: () {
+                        onFavoriteToggle(place);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Added to favorites!'),
-                            backgroundColor: AppColors.accent,
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            content: Text(
+                              place.isFavorite
+                                  ? 'Added to favorites!'
+                                  : 'Removed from favorites',
+                              style: const TextStyle(color: AppColors.white),
+                            ),
+                            backgroundColor: place.isFavorite
+                                ? AppColors.accent
+                                : Colors.grey,
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      icon: Icon(
+                        place.isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: AppColors.white,
                       ),
-                      child: const Text(
-                        'Add to Favorites',
-                        style: TextStyle(
+                      label: Text(
+                        place.isFavorite ? 'Remove from Favorites' : 'Add to Favorites',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: AppColors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: place.isFavorite ? Colors.grey : AppColors.accent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),

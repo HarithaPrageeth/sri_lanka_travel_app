@@ -5,12 +5,17 @@ import '../widgets/place_card.dart';
 import 'details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final List<Place> places;
+  final Function(Place) onFavoriteToggle;
+
+  const HomeScreen({
+    Key? key,
+    required this.places,
+    required this.onFavoriteToggle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final List<Place> places = Place.getPlaces();
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -123,8 +128,8 @@ class HomeScreen extends StatelessWidget {
                               size: 16,
                             ),
                             const SizedBox(width: 4),
-                            const Text(
-                              '5 Amazing Destinations',
+                            Text(
+                              '${places.length} Amazing Destinations',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.white,
@@ -186,12 +191,19 @@ class HomeScreen extends StatelessWidget {
                 return PlaceCard(
                   place: places[index],
                   onTap: () {
+                    // Navigation from Home Screen to Details Screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailsScreen(place: places[index]),
+                        builder: (context) => DetailsScreen(
+                          place: places[index],
+                          onFavoriteToggle: onFavoriteToggle,
+                        ),
                       ),
                     );
+                  },
+                  onFavoriteToggle: () {
+                    onFavoriteToggle(places[index]);
                   },
                 );
               },

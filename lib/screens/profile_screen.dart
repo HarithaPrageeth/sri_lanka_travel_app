@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import '../screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  void _logout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: AppColors.text.withOpacity(0.7),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +55,7 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
+              // Profile Header with Gradient Background
               Container(
                 height: 200,
                 width: double.infinity,
@@ -21,8 +64,8 @@ class ProfileScreen extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      const Color.fromRGBO(0, 119, 182, 1),
-                      const Color.fromRGBO(144, 224, 239, 1),
+                      AppColors.primary,
+                      AppColors.secondary,
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
@@ -33,6 +76,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Profile Image with fallback
                     Container(
                       width: 120,
                       height: 120,
@@ -51,23 +95,20 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                       child: ClipOval(
-                        child: Image.asset(
-                          AppAssets.profile,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: AppColors.accent,
-                              child: const Icon(
-                                Icons.person,
-                                size: 60,
-                                color: AppColors.white,
-                              ),
-                            );
-                          },
+                        child: Container(
+                          color: AppColors.accent,
+                          child: const Center(
+                            child: Icon(
+                              Icons.person,
+                              size: 60,
+                              color: AppColors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // User Name
                     const Text(
                       AppStrings.userName,
                       style: TextStyle(
@@ -77,6 +118,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // User Email
                     Text(
                       AppStrings.userEmail,
                       style: TextStyle(
@@ -88,68 +130,146 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+              // Profile Menu Items
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
                     _buildProfileMenuItem(
-                      icon: Icons.settings,
-                      title: 'Settings',
-                      onTap: () {},
+                      icon: Icons.person_outline,
+                      title: 'Edit Profile',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Edit profile feature coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildProfileMenuItem(
-                      icon: Icons.favorite,
+                      icon: Icons.favorite_border,
                       title: 'My Favorites',
-                      onTap: () {},
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Go to Favorites tab from bottom navigation'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       title: 'Travel History',
-                      onTap: () {},
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Travel history feature coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildProfileMenuItem(
-                      icon: Icons.help,
+                      icon: Icons.notifications_none,
+                      title: 'Notifications',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Notifications feature coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildProfileMenuItem(
+                      icon: Icons.language,
+                      title: 'Language',
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Language selection coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildProfileMenuItem(
+                      icon: Icons.help_outline,
                       title: 'Help & Support',
-                      onTap: () {},
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Help & support feature coming soon!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildProfileMenuItem(
                       icon: Icons.logout,
                       title: 'Log Out',
-                      onTap: () {},
+                      onTap: () => _logout(context),
                       isLogout: true,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
+              // Travel Statistics Section
               Container(
                 padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     const Text(
-                      'Travel Stats',
+                      'Travel Statistics',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color.fromRGBO(3, 4, 94, 1),
+                        color: AppColors.text,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildStatCard('15', 'Places Visited'),
-                        _buildStatCard('23', 'Photos Taken'),
-                        _buildStatCard('450', 'KM Traveled'),
+                        _buildStatCard('15', 'Places\nVisited'),
+                        _buildStatCard('23', 'Photos\nTaken'),
+                        _buildStatCard('450', 'KM\nTraveled'),
                       ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 30),
+              // App Version
+              Text(
+                'Version 1.0.0',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.text.withOpacity(0.5),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -211,15 +331,12 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.secondary,
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
@@ -231,13 +348,14 @@ class ProfileScreen extends StatelessWidget {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
               color: AppColors.text.withOpacity(0.7),
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
