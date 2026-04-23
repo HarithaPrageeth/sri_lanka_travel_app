@@ -5,11 +5,13 @@ import '../utils/constants.dart';
 class PlaceCard extends StatelessWidget {
   final Place place;
   final VoidCallback onTap;
+  final VoidCallback onFavoriteToggle;
 
   const PlaceCard({
     Key? key,
     required this.place,
     required this.onTap,
+    required this.onFavoriteToggle,
   }) : super(key: key);
 
   @override
@@ -37,23 +39,47 @@ class PlaceCard extends StatelessWidget {
                 topLeft: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
               ),
-              child: Image.asset(
-                place.imageUrl,
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
+              child: Stack(
+                children: [
+                  Image.asset(
+                    place.imageUrl,
                     width: 120,
                     height: 120,
-                    color: AppColors.secondary,
-                    child: const Icon(
-                      Icons.image,
-                      size: 50,
-                      color: AppColors.primary,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 120,
+                        height: 120,
+                        color: AppColors.secondary,
+                        child: const Icon(
+                          Icons.image,
+                          size: 50,
+                          color: AppColors.primary,
+                        ),
+                      );
+                    },
+                  ),
+                  // Favorite badge
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: GestureDetector(
+                      onTap: onFavoriteToggle,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          place.isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: place.isFavorite ? Colors.red : AppColors.text,
+                          size: 16,
+                        ),
+                      ),
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
             Expanded(
