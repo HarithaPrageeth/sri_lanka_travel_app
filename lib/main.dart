@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sri_lanka_travel_app/screens/favorites_screen.dart';
 import 'package:sri_lanka_travel_app/screens/home_screen.dart';
 import 'package:sri_lanka_travel_app/screens/profile_screen.dart';
+import 'package:sri_lanka_travel_app/screens/splash_screen.dart';
 import 'package:sri_lanka_travel_app/utils/constants.dart';
 import 'package:sri_lanka_travel_app/widgets/bottom_nav_bar.dart';
+import 'package:sri_lanka_travel_app/models/place.dart';
 
 void main() {
   runApp(const SriLankaTravelApp());
@@ -26,7 +28,7 @@ class SriLankaTravelApp extends StatelessWidget {
         ),
         fontFamily: 'Poppins',
       ),
-      home: const MainScreen(),
+      home: const SplashScreen(), // Start with splash screen
     );
   }
 }
@@ -35,28 +37,53 @@ class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainScreen> createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  late List<Place> places;
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const FavoritesScreen(),
-    const ProfileScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    places = Place.getPlaces();
+  }
+
+  void toggleFavorite(Place place) {
+    setState(() {
+      place.toggleFavorite();
+    });
+  }
+
+  void changeTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          HomeScreen(
+            places: places,
+            onFavoriteToggle: toggleFavorite,
+          ),
+          FavoritesScreen(
+            places: places,
+            onFavoriteToggle: toggleFavorite,
+            onExplorePressed: () => changeTab(0),
+          ),
+          const ProfileScreen(),
+        ],
+      ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          changeTab(index);
         },
       ),
     );
