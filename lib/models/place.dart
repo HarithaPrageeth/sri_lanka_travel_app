@@ -8,6 +8,7 @@ class Place {
   final double rating;
   final String location;
   final int price;
+  bool isFavorite;
 
   Place({
     required this.id,
@@ -17,18 +18,20 @@ class Place {
     required this.rating,
     required this.location,
     required this.price,
+    this.isFavorite = false,
   });
 
   static List<Place> getPlaces() {
     return [
       Place(
         id: '1',
-        name: ' ',
+        name: 'Sigiriya Rock Fortress',
         description: 'Ancient rock fortress and palace ruins surrounded by the remains of an extensive network of gardens, reservoirs, and other structures. A UNESCO World Heritage site that dates back to the 5th century.',
         imageUrl: AppAssets.sigiriya,
         rating: 4.8,
         location: 'Matale District',
         price: 30,
+        isFavorite: true, // Predefined favorite
       ),
       Place(
         id: '2',
@@ -38,6 +41,7 @@ class Place {
         rating: 4.7,
         location: 'Kandy',
         price: 15,
+        isFavorite: false,
       ),
       Place(
         id: '3',
@@ -47,6 +51,7 @@ class Place {
         rating: 4.9,
         location: 'Mirissa',
         price: 0,
+        isFavorite: true, // Predefined favorite
       ),
       Place(
         id: '4',
@@ -56,6 +61,7 @@ class Place {
         rating: 4.9,
         location: 'Ella',
         price: 5,
+        isFavorite: false,
       ),
       Place(
         id: '5',
@@ -65,7 +71,13 @@ class Place {
         rating: 4.6,
         location: 'Nuwara Eliya',
         price: 20,
+        isFavorite: false,
       ),
     ];
+  }
+
+  // Method to toggle favorite status
+  void toggleFavorite() {
+    isFavorite = !isFavorite;
   }
 }
