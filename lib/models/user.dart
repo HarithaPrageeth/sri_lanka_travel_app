@@ -1,53 +1,26 @@
-class User {
+class UserModel {
+  final String uid;
   final String email;
-  final String password;
   final String name;
-  final String? profileImage;
+  final String? photoUrl;
+  final DateTime? createdAt;
 
-  User({
+  UserModel({
+    required this.uid,
     required this.email,
-    required this.password,
     required this.name,
-    this.profileImage,
+    this.photoUrl,
+    this.createdAt,
   });
 
-  // For demo purposes - static list of registered users
-  static List<User> registeredUsers = [
-    User(
-      email: 'prageethh182@gmail.com',
-      password: 'AhpM1205',
-      name: 'Haritha Prageeth',
-    ),
-    User(
-      email: 'hpm9421@gmail.com',
-      password: '123456',
-      name: 'Travel User',
-    ),
-  ];
-
-  // Check if user exists
-  static User? login(String email, String password) {
-    try {
-      return registeredUsers.firstWhere(
-        (user) => user.email == email && user.password == password,
-      );
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // Register new user
-  static bool register(String email, String password, String name) {
-    // Check if email already exists
-    bool exists = registeredUsers.any((user) => user.email == email);
-    if (exists) return false;
-    
-    // Add new user
-    registeredUsers.add(User(
-      email: email,
-      password: password,
-      name: name,
-    ));
-    return true;
+  // Create from Firebase User
+  factory UserModel.fromFirebase(User firebaseUser) {
+    return UserModel(
+      uid: firebaseUser.uid,
+      email: firebaseUser.email ?? '',
+      name: firebaseUser.displayName ?? 'Traveler',
+      photoUrl: firebaseUser.photoURL,
+      createdAt: firebaseUser.metadata.creationTime,
+    );
   }
 }
