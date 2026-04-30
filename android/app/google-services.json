@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "588441379617",
+    "project_id": "serendipity-sri-lanka",
+    "storage_bucket": "serendipity-sri-lanka.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588441379617:android:438e71103709828dd3d460",
+        "android_client_info": {
+          "package_name": "com.example.sri_lanka_travel_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588441379617-r3gotlhs7tljcugn1acie498ddrs066r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtRKhyHyx_YrW44JGCW6IqJvffw7m87fA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588441379617-r3gotlhs7tljcugn1acie498ddrs066r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "588441379617-62vpojmqk93qhbm9hivnbkd4j2kj6cgd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.serendipity.srilanka"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588441379617:android:db4be6b26d8f9d33d3d460",
+        "android_client_info": {
+          "package_name": "com.serendipity.srilanka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "588441379617-r3gotlhs7tljcugn1acie498ddrs066r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtRKhyHyx_YrW44JGCW6IqJvffw7m87fA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "588441379617-r3gotlhs7tljcugn1acie498ddrs066r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "588441379617-62vpojmqk93qhbm9hivnbkd4j2kj6cgd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.serendipity.srilanka"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
