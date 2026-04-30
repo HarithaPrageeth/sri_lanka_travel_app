@@ -308,7 +308,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📞 Contact & Support
 
-**Developer:** Prageeth H  
+**Developer:** Haritha Prageeth 
 **Email:** prageethh182@gmail.com
 
 **Project Link:** [https://github.com/yourusername/serendipity-sri-lanka](https://github.com/yourusername/serendipity-sri-lanka)
