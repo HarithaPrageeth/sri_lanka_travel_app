@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/place.dart';
+import '../models/review.dart';
 import '../utils/constants.dart';
+import '../widgets/rating_stars.dart';
+import '../widgets/reviews_section.dart';
+import 'add_review_screen.dart';
 
-class DetailsScreen extends StatelessWidget {
+class DetailsScreen extends StatefulWidget {
   final Place place;
   final Function(Place) onFavoriteToggle;
 
@@ -11,6 +15,29 @@ class DetailsScreen extends StatelessWidget {
     required this.place,
     required this.onFavoriteToggle,
   }) : super(key: key);
+
+  @override
+  State<DetailsScreen> createState() => _DetailsScreenState();
+}
+
+class _DetailsScreenState extends State<DetailsScreen> {
+  late List<Review> _reviews;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviews();
+  }
+
+  void _loadReviews() {
+    _reviews = Review.getReviewsForPlace(widget.place.id);
+  }
+
+  void _addReview(Review review) {
+    setState(() {
+      _reviews.insert(0, review);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,23 +54,22 @@ class DetailsScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              // Favorite button in app bar
               IconButton(
                 icon: Icon(
-                  place.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: place.isFavorite ? Colors.red : AppColors.white,
+                  widget.place.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: widget.place.isFavorite ? Colors.red : AppColors.white,
                 ),
                 onPressed: () {
-                  onFavoriteToggle(place);
+                  widget.onFavoriteToggle(widget.place);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        place.isFavorite
+                        widget.place.isFavorite
                             ? 'Added to favorites!'
                             : 'Removed from favorites',
                         style: const TextStyle(color: AppColors.white),
                       ),
-                      backgroundColor: place.isFavorite
+                      backgroundColor: widget.place.isFavorite
                           ? AppColors.accent
                           : Colors.grey,
                       duration: const Duration(seconds: 2),
@@ -54,7 +80,7 @@ class DetailsScreen extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                place.name,
+                widget.place.name,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   shadows: [
@@ -66,7 +92,7 @@ class DetailsScreen extends StatelessWidget {
                 ),
               ),
               background: Image.asset(
-                place.imageUrl,
+                widget.place.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -94,7 +120,7 @@ class DetailsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          place.name,
+                          widget.place.name,
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -120,7 +146,7 @@ class DetailsScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              place.rating.toString(),
+                              widget.place.rating.toString(),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -142,7 +168,7 @@ class DetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        place.location,
+                        widget.place.location,
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.text.withOpacity(0.8),
@@ -151,6 +177,7 @@ class DetailsScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  // About Section
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -177,7 +204,7 @@ class DetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          place.description,
+                          widget.place.description,
                           style: TextStyle(
                             fontSize: 16,
                             height: 1.5,
@@ -188,6 +215,7 @@ class DetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // Entry Fee Section
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -213,31 +241,49 @@ class DetailsScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          place.price == 0 ? 'Free' : '\$${place.price}',
+                          widget.place.price == 0 ? 'Free' : '\$${widget.place.price}',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: place.price == 0 ? AppColors.accent : AppColors.primary,
+                            color: widget.place.price == 0 ? AppColors.accent : AppColors.primary,
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // Reviews Section
+                  ReviewsSection(
+                    reviews: _reviews,
+                    onAddReview: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddReviewScreen(
+                            placeId: widget.place.id,
+                            placeName: widget.place.name,
+                            onReviewAdded: _addReview,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  // Favorite Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        onFavoriteToggle(place);
+                        widget.onFavoriteToggle(widget.place);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              place.isFavorite
+                              widget.place.isFavorite
                                   ? 'Added to favorites!'
                                   : 'Removed from favorites',
                               style: const TextStyle(color: AppColors.white),
                             ),
-                            backgroundColor: place.isFavorite
+                            backgroundColor: widget.place.isFavorite
                                 ? AppColors.accent
                                 : Colors.grey,
                             duration: const Duration(seconds: 2),
@@ -245,11 +291,11 @@ class DetailsScreen extends StatelessWidget {
                         );
                       },
                       icon: Icon(
-                        place.isFavorite ? Icons.favorite : Icons.favorite_border,
+                        widget.place.isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: AppColors.white,
                       ),
                       label: Text(
-                        place.isFavorite ? 'Remove from Favorites' : 'Add to Favorites',
+                        widget.place.isFavorite ? 'Remove from Favorites' : 'Add to Favorites',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -257,7 +303,7 @@ class DetailsScreen extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: place.isFavorite ? Colors.grey : AppColors.accent,
+                        backgroundColor: widget.place.isFavorite ? Colors.grey : AppColors.accent,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -265,6 +311,7 @@ class DetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),

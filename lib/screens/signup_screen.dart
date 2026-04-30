@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sri_lanka_travel_app/models/user.dart';
+import 'package:sri_lanka_travel_app/services/auth_service.dart';
 import 'package:sri_lanka_travel_app/utils/constants.dart';
 import 'package:sri_lanka_travel_app/screens/login_screen.dart';
 
@@ -16,6 +16,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -29,50 +30,34 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _handleSignup() async {
+  Future<void> _handleSignup() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Register new user
-      bool success = User.register(
+      final user = await _authService.signUpWithEmail(
         _emailController.text.trim(),
         _passwordController.text,
         _nameController.text.trim(),
       );
 
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
 
-      if (success) {
-        // Registration successful
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Account created successfully! Please login.'),
-              backgroundColor: AppColors.accent,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-          );
-        }
-      } else {
-        // Registration failed - email exists
+      if (user != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Account created successfully! Welcome ${user.displayName}!'),
+            backgroundColor: AppColors.accent,
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Email already exists! Please use another email.'),
+            content: Text('Email already exists or invalid!'),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
           ),
         );
       }
@@ -133,7 +118,6 @@ class _SignupScreenState extends State<SignupScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Full Name Field
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
@@ -168,7 +152,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    // Email Field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -204,7 +187,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    // Password Field
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -252,7 +234,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    // Confirm Password Field
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
@@ -359,18 +340,6 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 30),
-              // Terms and Conditions
-              Center(
-                child: Text(
-                  'By signing up, you agree to our Terms & Conditions',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.text.withOpacity(0.5),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
               ),
             ],
           ),

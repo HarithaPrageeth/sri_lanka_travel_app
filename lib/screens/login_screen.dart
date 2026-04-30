@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sri_lanka_travel_app/models/user.dart';
+import 'package:sri_lanka_travel_app/services/auth_service.dart';
 import 'package:sri_lanka_travel_app/utils/constants.dart';
 import 'package:sri_lanka_travel_app/screens/signup_screen.dart';
 import 'package:sri_lanka_travel_app/main.dart';
@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -25,52 +26,65 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  Future<void> _handleEmailLogin() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Check login credentials
-      User? user = User.login(
+      final user = await _authService.signInWithEmail(
         _emailController.text.trim(),
         _passwordController.text,
       );
 
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
 
-      if (user != null) {
-        // Login successful
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Welcome back, ${user.name}!'),
-              backgroundColor: AppColors.accent,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      } else {
-        // Login failed
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome back, ${user.displayName ?? 'Traveler'}!'),
+            backgroundColor: AppColors.accent,
+          ),
+        );
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Invalid email or password!'),
+            content: Text('Invalid email or password!\nTry: demo@example.com / password123'),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 3),
           ),
         );
       }
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+    
+    final user = await _authService.signInWithGoogle();
+    
+    setState(() => _isLoading = false);
+    
+    if (user != null && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Welcome, ${user.displayName ?? 'Traveler'}!'),
+          backgroundColor: AppColors.accent,
+        ),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Google Sign In failed. Please try email login.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -149,12 +163,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Login Form
+              // Email/Password Form
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Email Field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -190,7 +203,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    // Password Field
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -262,13 +274,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
-              // Login Button
+              const SizedBox(height: 20),
+              // Sign In Button
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
+                  onPressed: _isLoading ? null : _handleEmailLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accent,
                     shape: RoundedRectangleBorder(
@@ -280,13 +292,59 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppColors.white,
                         )
                       : const Text(
-                          'Sign In',
+                          'Sign In with Email',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppColors.white,
                           ),
                         ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // OR Divider
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.text.withOpacity(0.3),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        color: AppColors.text.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      color: AppColors.text.withOpacity(0.3),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Google Sign In Button
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _handleGoogleSignIn,
+                  icon: const Icon(Icons.g_mobiledata, size: 24),
+                  label: const Text(
+                    'Sign in with Google',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.text,
+                    side: BorderSide(color: AppColors.text.withOpacity(0.3)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -339,17 +397,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Email: prageethh182@gmail.com',
+                      'Email: demo@example.com',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withOpacity(0.8),
                       ),
                     ),
                     Text(
-                      'Password: AhpM1205',
+                      'Password: password123',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Or try: amara@serendipity.lk / password123',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.accent,
                       ),
                     ),
                   ],

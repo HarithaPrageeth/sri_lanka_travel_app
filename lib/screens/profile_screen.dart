@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 import '../screens/login_screen.dart';
+import '../services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final String userName;
+  final String userEmail;
+  final String userPhotoUrl;
+
+  ProfileScreen({
+    Key? key,
+    required this.userName,
+    required this.userEmail,
+    required this.userPhotoUrl,
+  }) : super(key: key);
+
+  final AuthService _authService = AuthService();
 
   void _logout(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Logout'),
           content: const Text('Are you sure you want to logout?'),
@@ -17,7 +29,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'Cancel',
                 style: TextStyle(
@@ -26,14 +38,17 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
+              onPressed: () async {
+                await _authService.signOut();
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                  Navigator.pushReplacement(
+                    dialogContext,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                }
               },
               child: const Text(
                 'Logout',
@@ -55,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              // Profile Header with Gradient Background
+              // Profile Header
               Container(
                 height: 200,
                 width: double.infinity,
@@ -63,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
+                    colors: const [
                       AppColors.primary,
                       AppColors.secondary,
                     ],
@@ -76,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Profile Image with fallback
+                    // Profile Image
                     Container(
                       width: 120,
                       height: 120,
@@ -95,23 +110,14 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                       child: ClipOval(
-                        child: Container(
-                          color: AppColors.accent,
-                          child: const Center(
-                            child: Icon(
-                              Icons.person,
-                              size: 60,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ),
+                        child: _buildProfileImage(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     // User Name
-                    const Text(
-                      AppStrings.userName,
-                      style: TextStyle(
+                    Text(
+                      userName,
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: AppColors.white,
@@ -120,7 +126,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 4),
                     // User Email
                     Text(
-                      AppStrings.userEmail,
+                      userEmail,
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.white.withOpacity(0.9),
@@ -143,6 +149,7 @@ class ProfileScreen extends StatelessWidget {
                           const SnackBar(
                             content: Text('Edit profile feature coming soon!'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
@@ -156,6 +163,7 @@ class ProfileScreen extends StatelessWidget {
                           const SnackBar(
                             content: Text('Go to Favorites tab from bottom navigation'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
@@ -169,6 +177,7 @@ class ProfileScreen extends StatelessWidget {
                           const SnackBar(
                             content: Text('Travel history feature coming soon!'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
@@ -182,19 +191,21 @@ class ProfileScreen extends StatelessWidget {
                           const SnackBar(
                             content: Text('Notifications feature coming soon!'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
                     ),
                     const SizedBox(height: 12),
                     _buildProfileMenuItem(
-                      icon: Icons.language,
-                      title: 'Language',
+                      icon: Icons.security,
+                      title: 'Privacy & Security',
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Language selection coming soon!'),
+                            content: Text('Privacy settings coming soon!'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
@@ -208,6 +219,7 @@ class ProfileScreen extends StatelessWidget {
                           const SnackBar(
                             content: Text('Help & support feature coming soon!'),
                             duration: Duration(seconds: 2),
+                            backgroundColor: AppColors.accent,
                           ),
                         );
                       },
@@ -223,7 +235,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
-              // Travel Statistics Section
+              // Travel Statistics
               Container(
                 padding: const EdgeInsets.all(20),
                 margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -274,6 +286,55 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    // If no photo URL or empty, show placeholder
+    if (userPhotoUrl.isEmpty) {
+      return Container(
+        color: AppColors.accent,
+        child: const Center(
+          child: Icon(
+            Icons.person,
+            size: 60,
+            color: AppColors.white,
+          ),
+        ),
+      );
+    }
+
+    // Try to load network image
+    return Image.network(
+      userPhotoUrl,
+      fit: BoxFit.cover,
+      width: 120,
+      height: 120,
+      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+        return Container(
+          color: AppColors.accent,
+          child: const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.white,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+        return Container(
+          color: AppColors.accent,
+          child: const Center(
+            child: Icon(
+              Icons.person,
+              size: 60,
+              color: AppColors.white,
+            ),
+          ),
+        );
+      },
     );
   }
 

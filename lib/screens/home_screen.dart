@@ -4,7 +4,7 @@ import '../utils/constants.dart';
 import '../widgets/place_card.dart';
 import 'details_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final List<Place> places;
   final Function(Place) onFavoriteToggle;
 
@@ -13,6 +13,55 @@ class HomeScreen extends StatelessWidget {
     required this.places,
     required this.onFavoriteToggle,
   }) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Place> _filteredPlaces = [];
+  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredPlaces = widget.places;
+    _searchController.addListener(_filterPlaces);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterPlaces);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterPlaces() {
+    String query = _searchController.text.toLowerCase().trim();
+    
+    setState(() {
+      if (query.isEmpty) {
+        _filteredPlaces = widget.places;
+        _isSearching = false;
+      } else {
+        _filteredPlaces = widget.places.where((place) {
+          return place.name.toLowerCase().contains(query) ||
+                 place.location.toLowerCase().contains(query);
+        }).toList();
+        _isSearching = true;
+      }
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _filteredPlaces = widget.places;
+      _isSearching = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${places.length} Amazing Destinations',
+                              '${widget.places.length} Amazing Destinations',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.white,
@@ -150,15 +199,96 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
+          // Search Bar Section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search places by name or location...',
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withOpacity(0.5),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: AppColors.accent,
+                    ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: AppColors.text.withOpacity(0.5),
+                            ),
+                            onPressed: _clearSearch,
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Search Results Info
+          if (_isSearching)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Found ${_filteredPlaces.length} results',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.text.withOpacity(0.7),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _clearSearch,
+                      child: Text(
+                        'Clear',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          // Popular Destinations Header
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Popular Destinations',
-                    style: TextStyle(
+                  Text(
+                    _isSearching ? 'Search Results' : 'Popular Destinations',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.text,
@@ -174,7 +304,7 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${places.length} Places',
+                      '${_filteredPlaces.length} ${_filteredPlaces.length == 1 ? 'Place' : 'Places'}',
                       style: const TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.w600,
@@ -185,33 +315,86 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return PlaceCard(
-                  place: places[index],
-                  onTap: () {
-                    // Navigation from Home Screen to Details Screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailsScreen(
-                          place: places[index],
-                          onFavoriteToggle: onFavoriteToggle,
-                        ),
-                      ),
-                    );
-                  },
-                  onFavoriteToggle: () {
-                    onFavoriteToggle(places[index]);
-                  },
-                );
-              },
-              childCount: places.length,
-            ),
-          ),
+          // Places List
+          _filteredPlaces.isEmpty
+              ? SliverToBoxAdapter(
+                  child: _buildNoResultsFound(),
+                )
+              : SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return PlaceCard(
+                        place: _filteredPlaces[index],
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetailsScreen(
+                                place: _filteredPlaces[index],
+                                onFavoriteToggle: widget.onFavoriteToggle,
+                              ),
+                            ),
+                          );
+                        },
+                        onFavoriteToggle: () {
+                          widget.onFavoriteToggle(_filteredPlaces[index]);
+                        },
+                      );
+                    },
+                    childCount: _filteredPlaces.length,
+                  ),
+                ),
           const SliverToBoxAdapter(
             child: SizedBox(height: 80),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResultsFound() {
+    return Container(
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 80,
+            color: AppColors.text.withOpacity(0.3),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'No places found',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.text.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Try searching with different keywords',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.text.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _clearSearch,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+            child: const Text(
+              'Clear Search',
+              style: TextStyle(
+                color: AppColors.white,
+              ),
+            ),
           ),
         ],
       ),
