@@ -10,23 +10,21 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
+  google_sign_in: ^6.1.5
+  
+  # For image loading
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  flutter_launcher_icons: ^0.13.1  # Add this line
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
-
-# Add this section at the bottom
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/icon/app_icon.png"
-  adaptive_icon_background: "#0077B6"  # Ocean Blue
-  adaptive_icon_foreground: "assets/icon/app_icon.png"
-  min_sdk_android: 21
