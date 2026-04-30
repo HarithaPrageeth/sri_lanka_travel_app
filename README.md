@@ -471,4 +471,4 @@ git branch -M main
 git push -u origin main
 ```
 
-Your GitHub repository is now ready with a professional README!
+
