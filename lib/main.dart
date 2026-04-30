@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sri_lanka_travel_app/screens/favorites_screen.dart';
 import 'package:sri_lanka_travel_app/screens/home_screen.dart';
 import 'package:sri_lanka_travel_app/screens/profile_screen.dart';
-import 'package:sri_lanka_travel_app/screens/splash_screen.dart';
+import 'package:sri_lanka_travel_app/screens/login_screen.dart';
 import 'package:sri_lanka_travel_app/utils/constants.dart';
 import 'package:sri_lanka_travel_app/widgets/bottom_nav_bar.dart';
 import 'package:sri_lanka_travel_app/models/place.dart';
+import 'package:sri_lanka_travel_app/services/auth_service.dart';
 
 void main() {
   runApp(const SriLankaTravelApp());
@@ -28,7 +29,15 @@ class SriLankaTravelApp extends StatelessWidget {
         ),
         fontFamily: 'Poppins',
       ),
-      home: const SplashScreen(), // Start with splash screen
+      home: StreamBuilder(
+        stream: AuthService().user,
+        builder: (context, snapshot) {
+          if (AuthService().isSignedIn()) {
+            return const MainScreen();
+          }
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }
@@ -43,6 +52,7 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Place> places;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -77,7 +87,11 @@ class MainScreenState extends State<MainScreen> {
             onFavoriteToggle: toggleFavorite,
             onExplorePressed: () => changeTab(0),
           ),
-          const ProfileScreen(),
+          ProfileScreen(
+            userName: _authService.getUserName(),
+            userEmail: _authService.getUserEmail(),
+            userPhotoUrl: _authService.getUserPhotoUrl(),
+          ),
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
